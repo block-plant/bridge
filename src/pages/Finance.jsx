@@ -182,10 +182,10 @@ export default function Finance() {
             </div>
           </div>
         </div>
-        <div className="max-w-2xl mx-auto mt-3 flex bg-rose/10 rounded-2xl p-1 gap-1">
+        <div className="max-w-2xl mx-auto mt-3 flex bg-rose/10 rounded-2xl p-1 gap-1 overflow-x-auto">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex-1 py-1.5 rounded-xl text-xs font-medium transition-all ${tab === t.id ? "bg-white text-plum shadow-soft" : "text-softdark/50 hover:text-plum"}`}>
+              className={`flex-1 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap min-w-[70px] ${tab === t.id ? "bg-white text-plum shadow-soft" : "text-softdark/50 hover:text-plum"}`}>
               {t.label}
             </button>
           ))}
@@ -199,15 +199,15 @@ export default function Finance() {
           {tab === "expenses" && (
             <motion.div key="expenses" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 md:gap-3">
                 {[
                   { label: "Total Spent", value: formatCurrency(totalSpent), emoji: "💸" },
                   { label: userData?.displayName || "You", value: formatCurrency(myTotal), emoji: "👤" },
                   { label: partner?.displayName || "Partner", value: formatCurrency(partnerTotal), emoji: "👤" },
                 ].map(s => (
-                  <div key={s.label} className="bg-white/70 rounded-2xl p-3 border border-white/80 shadow-soft text-center">
-                    <p className="text-lg">{s.emoji}</p>
-                    <p className="font-serif text-lg text-plum">{s.value}</p>
+                  <div key={s.label} className="bg-white/70 rounded-2xl p-2 md:p-3 border border-white/80 shadow-soft text-center">
+                    <p className="text-base md:text-lg">{s.emoji}</p>
+                    <p className="font-serif text-sm md:text-lg text-plum">{s.value}</p>
                     <p className="text-xs text-softdark/40 truncate">{s.label}</p>
                   </div>
                 ))}
@@ -460,7 +460,7 @@ export default function Finance() {
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-plum/50 mb-2">Paid by</label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[{ id: "me", label: userData?.displayName || "Me" }, { id: "partner", label: partner?.displayName || "Partner" }].map(p => (
                     <button key={p.id} onClick={() => setExpenseForm(prev => ({ ...prev, paidBy: p.id }))}
                       className={`flex-1 py-2 rounded-2xl border text-xs font-medium transition-all ${expenseForm.paidBy === p.id ? "bg-plum text-white border-plum" : "bg-white text-softdark/60 border-rose/30"}`}>
