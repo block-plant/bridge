@@ -12,31 +12,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const uData = userDoc.data();
-          setUserData(uData);
-          const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
-          if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
-
-          // Live updates for user data
-          onSnapshot(userRef, (snap) => {
-            if (snap.exists()) setUserData(snap.data());
-          });
-        }
-      } else {
-        setUser(null);
-        setUserData(null);
-        setCoupleData(null);
+  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    if (firebaseUser) {
+      setUser(firebaseUser);
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const uData = userDoc.data();
+        setUserData(uData);
+        const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
+        if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
       }
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+
+      // ✅ Store cleanup function
+      const unsubUser = onSnapshot(userRef, (snap) => {
+        if (snap.exists()) setUserData(snap.data());
+      });
+      return unsubUser; // ✅ gets cleaned up properly
+    } else {
+      setUser(null);
+      setUserData(null);
+      setCoupleData(null);
+    }
+    setLoading(false);
+  });
+  return () => unsubscribe();
+}, []);
 
   // ── Memoize context value to prevent unnecessary re-renders ──────────────────
   const value = useMemo(() => ({
