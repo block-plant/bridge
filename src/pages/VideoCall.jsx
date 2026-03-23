@@ -595,7 +595,7 @@ export default function VideoCall() {
           <AnimatePresence>
             {chatOpen && (
               <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-                className="absolute right-0 top-0 bottom-0 w-72 bg-softdark/95 backdrop-blur-xl border-l border-white/10 flex flex-col z-20">
+                className="absolute right-0 top-0 bottom-0 w-64 md:w-72 bg-softdark/95 backdrop-blur-xl border-l border-white/10 flex flex-col z-20">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                   <p className="text-white font-medium text-sm">💬 Chat</p>
                   <button onClick={() => setChatOpen(false)} className="text-white/40 hover:text-white transition-colors">✕</button>
@@ -632,22 +632,22 @@ export default function VideoCall() {
             </div>
 
             {/* Main controls */}
-            <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
               {/* Mute */}
               <button onClick={toggleMute}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${muted ? "bg-red-500/30 text-red-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg transition-all ${muted ? "bg-red-500/30 text-red-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {muted ? "🔇" : "🎤"}
               </button>
 
               {/* Camera */}
               <button onClick={toggleCamera}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${cameraOff ? "bg-red-500/30 text-red-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg transition-all ${cameraOff ? "bg-red-500/30 text-red-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {cameraOff ? "🚫" : "📹"}
               </button>
 
               {/* Screen share */}
               <button onClick={toggleScreenShare}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${screenSharing ? "bg-green-500/30 text-green-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg transition-all ${screenSharing ? "bg-green-500/30 text-green-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 🖥️
               </button>
 
@@ -674,31 +674,27 @@ export default function VideoCall() {
 
               {/* Raise hand */}
               <button onClick={toggleHand}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${handRaised ? "bg-amber-500/30 text-amber-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg transition-all ${handRaised ? "bg-amber-500/30 text-amber-400" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 ✋
               </button>
 
               {/* Screenshot */}
               <button onClick={takeScreenshot}
-                className="w-12 h-12 rounded-full flex items-center justify-center text-lg bg-white/10 text-white hover:bg-white/20 transition-all">
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg bg-white/10 text-white hover:bg-white/20 transition-all">
                 📸
               </button>
 
               {/* Chat */}
               <button onClick={() => setChatOpen(c => !c)}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${chatOpen ? "bg-plum/50 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-lg transition-all ${chatOpen ? "bg-plum/50 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 💬
               </button>
 
               {/* End call */}
-              <button onClick={async () => {
-                try { await updateDoc(callRef, { status: "ended" }); } catch { }
-                await cleanup();
-                setCallStatus("idle");
-                }}
-                className="py-3 px-8 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors">
-                Cancel Call
-                </button>
+              <button onClick={() => endCall(true)}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-500 text-white text-lg md:text-xl flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg hover:scale-105">
+                ✕
+              </button>
             </div>
           </div>
         </div>
