@@ -799,7 +799,7 @@ export default function Games() {
                   <div className="flex gap-2 flex-wrap">
                     {game.levels.map(level => (
                       <button key={level} onClick={() => startGame(game, level)}
-                        className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-all hover:-translate-y-0.5 ${LEVEL_COLORS[level]}`}>
+                        className={`text-xs px-4 py-2 rounded-full border font-medium transition-all active:scale-95 touch-manipulation ${LEVEL_COLORS[level]}`}>
                         {level}
                       </button>
                     ))}
@@ -811,7 +811,7 @@ export default function Games() {
 
           {selectedGame && (
             <motion.div key="game" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
-              <div className="bg-white/70 backdrop-blur-sm rounded-3xl border border-white/80 shadow-soft p-4 flex items-center justify-between">
+              <div className="bg-white/70 backdrop-blur-sm rounded-3xl border border-white/80 shadow-soft p-3 md:p-4 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{selectedGame.icon}</span>
                   <div>
