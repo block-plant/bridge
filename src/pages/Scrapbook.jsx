@@ -327,7 +327,7 @@ export default function Scrapbook() {
     <div className="page-enter min-h-screen bg-petal">
       {/* Header */}
       <div className="bg-white/60 backdrop-blur-md border-b border-rose/20 px-4 py-4 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/dashboard"
               className="text-plum/50 hover:text-plum bg-white/50 rounded-2xl px-3 py-2 border border-rose/20 transition-colors text-sm">
@@ -339,7 +339,7 @@ export default function Scrapbook() {
             </div>
           </div>
           <button onClick={() => setShowUpload(true)}
-            className="bg-gradient-to-r from-plum to-plum-light text-white rounded-2xl px-4 py-2 text-sm font-medium hover:-translate-y-0.5 transition-all shadow-plum">
+            className="bg-gradient-to-r from-plum to-plum-light text-white rounded-2xl px-3 md:px-4 py-2 text-sm font-medium hover:-translate-y-0.5 transition-all shadow-plum whitespace-nowrap">
             + Add Memory
           </button>
         </div>
@@ -357,7 +357,7 @@ export default function Scrapbook() {
             </button>
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {memories.map((memory) => (
             <MemoryCard key={memory.id} memory={memory}
               isMe={memory.senderId === user.uid}
@@ -449,10 +449,10 @@ export default function Scrapbook() {
                   {/* Layout */}
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-plum/50 mb-2">Layout</label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {LAYOUTS.map((l) => (
                         <button key={l.id} onClick={() => setSelectedLayout(l.id)}
-                          className={`flex-1 text-xs py-2 rounded-2xl border transition-all ${selectedLayout === l.id ? "bg-plum text-white border-plum" : "bg-white text-softdark/60 border-rose/30"}`}>
+                          className={`flex-1 min-w-[70px] text-xs py-2 rounded-2xl border transition-all ${selectedLayout === l.id ? "bg-plum text-white border-plum" : "bg-white text-softdark/60 border-rose/30"}`}>
                           {l.label}
                         </button>
                       ))}
