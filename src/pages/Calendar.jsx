@@ -312,7 +312,7 @@ export default function SharedCalendar() {
               ))}
             </div>
             <button onClick={() => setShowAdd(true)}
-              className="bg-gradient-to-r from-plum to-plum-light text-white rounded-2xl px-4 py-2 text-sm font-medium hover:-translate-y-0.5 transition-all shadow-plum">
+              className="bg-gradient-to-r from-plum to-plum-light text-white rounded-2xl px-3 md:px-4 py-2 text-sm font-medium hover:-translate-y-0.5 transition-all shadow-plum whitespace-nowrap">
               + Add
             </button>
           </div>
@@ -431,7 +431,7 @@ export default function SharedCalendar() {
               </div>
 
               {/* Date + Time */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <label className="block text-xs uppercase tracking-widest text-plum/50 mb-1.5">Date</label>
                   <input type="date" value={form.date} onChange={f("date")}
@@ -450,7 +450,7 @@ export default function SharedCalendar() {
                 <div className="flex flex-wrap gap-2">
                   {EVENT_TYPES.map(t => (
                     <button key={t.id} onClick={() => setForm(p => ({ ...p, type: t.id }))}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-all ${form.type === t.id ? "bg-plum text-white border-plum" : "bg-white text-softdark/60 border-rose/30"}`}>
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-all touch-manipulation ${form.type === t.id ? "bg-plum text-white border-plum" : "bg-white text-softdark/60 border-rose/30"}`}>
                       {t.label}
                     </button>
                   ))}
