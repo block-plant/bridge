@@ -1,6 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import FloatingCall from "./components/shared/FloatingCall";
 
@@ -28,19 +27,6 @@ const PageLoader = () => (
   </div>
 );
 
-// ── Page transition wrapper ───────────────────────────────────────────────────
-const PageTransition = ({ children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -16 }}
-    transition={{ duration: 0.25, ease: "easeInOut" }}
-    style={{ minHeight: "100vh" }}
-  >
-    {children}
-  </motion.div>
-);
-
 // ── Route guards ──────────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -52,30 +38,25 @@ const PublicRoute = ({ children }) => {
   return !user ? children : <Navigate to="/dashboard" replace />;
 };
 
-// ── Inner router (must be inside BrowserRouter) ───────────────────────────────
 function AppRoutes() {
   const { user } = useAuth();
-  const location = useLocation();
-
   return (
     <>
       {user && <FloatingCall />}
-      <AnimatePresence mode="wait" initial={false}>
-        <Suspense fallback={<PageLoader />}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/"          element={<PublicRoute><PageTransition><Landing /></PageTransition></PublicRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
-            <Route path="/messages"  element={<ProtectedRoute><PageTransition><Messages /></PageTransition></ProtectedRoute>} />
-            <Route path="/scrapbook" element={<ProtectedRoute><PageTransition><Scrapbook /></PageTransition></ProtectedRoute>} />
-            <Route path="/calendar"  element={<ProtectedRoute><PageTransition><Calendar /></PageTransition></ProtectedRoute>} />
-            <Route path="/music"     element={<ProtectedRoute><PageTransition><MusicRoom /></PageTransition></ProtectedRoute>} />
-            <Route path="/games"     element={<ProtectedRoute><PageTransition><Games /></PageTransition></ProtectedRoute>} />
-            <Route path="/finance"   element={<ProtectedRoute><PageTransition><Finance /></PageTransition></ProtectedRoute>} />
-            <Route path="/video"     element={<ProtectedRoute><PageTransition><VideoCall /></PageTransition></ProtectedRoute>} />
-            <Route path="*"          element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </AnimatePresence>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/"          element={<PublicRoute><Landing /></PublicRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/messages"  element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/scrapbook" element={<ProtectedRoute><Scrapbook /></ProtectedRoute>} />
+          <Route path="/calendar"  element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+          <Route path="/music"     element={<ProtectedRoute><MusicRoom /></ProtectedRoute>} />
+          <Route path="/games"     element={<ProtectedRoute><Games /></ProtectedRoute>} />
+          <Route path="/finance"   element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+          <Route path="/video"     element={<ProtectedRoute><VideoCall /></ProtectedRoute>} />
+          <Route path="*"          element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
