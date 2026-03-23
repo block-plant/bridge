@@ -12,6 +12,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+  let unsubUser = null;
+
   const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
     if (firebaseUser) {
       setUser(firebaseUser);
@@ -22,13 +24,12 @@ export const AuthProvider = ({ children }) => {
         setUserData(uData);
         const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
         if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
-      }
 
-      // ✅ Store cleanup function
-      const unsubUser = onSnapshot(userRef, (snap) => {
-        if (snap.exists()) setUserData(snap.data());
-      });
-      return unsubUser; // ✅ gets cleaned up properly
+        // ✅ store reference so we can clean it up
+        unsubUser = onSnapshot(userRef, (snap) => {
+          if (snap.exists()) setUserData(snap.data());
+        });
+      }
     } else {
       setUser(null);
       setUserData(null);
@@ -36,10 +37,13 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   });
-  return () => unsubscribe();
+
+  return () => {
+    unsubscribe();
+    if (unsubUser) unsubUser(); 
+  };
 }, []);
 
-  // ── Memoize context value to prevent unnecessary re-renders ──────────────────
   const value = useMemo(() => ({
     user, userData, coupleData, loading, setCoupleData
   }), [user, userData, coupleData, loading]);
