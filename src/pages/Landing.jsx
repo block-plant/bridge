@@ -201,7 +201,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-petal relative overflow-hidden flex items-center justify-center p-4">
+    <div className="page-enter min-h-screen bg-petal relative overflow-hidden flex items-center justify-center p-4">
       {[12, 28, 44, 60, 76, 90].map((x, i) => (
         <FloatingHeart key={i} x={x} delay={i * 1.5} size={12 + (i % 3) * 4} />
       ))}
