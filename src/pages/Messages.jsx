@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   collection, addDoc, onSnapshot, query,
-  orderBy, serverTimestamp, doc, updateDoc, arrayUnion
+  orderBy, serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
@@ -145,7 +145,7 @@ export default function Messages() {
   };
 
   return (
-    <div className="min-h-screen bg-petal flex flex-col">
+    <div className="page-enter min-h-screen bg-petal flex flex-col">
       {/* Header */}
       <div className="bg-white/60 backdrop-blur-md border-b border-rose/20 px-4 py-4 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
