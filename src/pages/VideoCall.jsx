@@ -163,13 +163,14 @@ const remoteStreamRef = useRef(null);
   useEffect(() => {
     if ((callStatus === "connected" || callStatus === "connecting") && remoteVideoRef.current && remoteStreamRef.current) {
       remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      remoteVideoRef.current.play().catch(() => {});  // ← iOS fix
     }
   }, [callStatus]);
 
-  // Local stream effect
   useEffect(() => {
     if ((callStatus === "connected" || callStatus === "connecting") && localVideoRef.current && localStreamRef.current) {
       localVideoRef.current.srcObject = localStreamRef.current;
+      localVideoRef.current.play().catch(() => {});   // ← iOS fix
     }
   }, [callStatus]);
 
@@ -228,7 +229,10 @@ const remoteStreamRef = useRef(null);
     stream.getTracks().forEach(track => pc.addTrack(track, stream));
     pc.ontrack = (e) => {
       remoteStreamRef.current = e.streams[0];
-      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = e.streams[0];
+        remoteVideoRef.current.play().catch(() => {});
+      }
     };
     pc.onconnectionstatechange = () => {
       if (pc.connectionState === "connected") {
@@ -542,8 +546,9 @@ const remoteStreamRef = useRef(null);
 
           {/* Main video — remote */}
           <div className="flex-1 relative bg-black flex items-center justify-center">
-            <video ref={remoteVideoRef} autoPlay playsInline
-              className="w-full h-full object-contain max-h-screen" />
+            <video ref={remoteVideoRef} autoPlay playsInline muted={false}
+              className="w-full h-full object-contain max-h-screen"
+              onClick={(e) => e.target.play().catch(() => {})} />
 
             {/* Screen share overlay */}
             {screenSharing && (
