@@ -8,7 +8,7 @@ import {
 import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-
+ 
 const ICE_SERVERS = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
@@ -541,9 +541,9 @@ const remoteStreamRef = useRef(null);
         <div className="flex-1 flex flex-col relative overflow-hidden">
 
           {/* Main video — remote */}
-          <div className="flex-1 relative bg-black">
+          <div className="flex-1 relative bg-black flex items-center justify-center">
             <video ref={remoteVideoRef} autoPlay playsInline
-              className="w-full h-full object-contain" />
+              className="w-full h-full object-contain max-h-screen" />
 
             {/* Screen share overlay */}
             {screenSharing && (
@@ -566,7 +566,7 @@ const remoteStreamRef = useRef(null);
             <div className={`absolute transition-all duration-300 ${pip ? "bottom-20 left-4 w-48 h-36" : "bottom-20 right-4 w-32 h-24"} rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer`}
               onClick={() => setPip(p => !p)}>
               <video ref={localVideoRef} autoPlay playsInline muted
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 style={{ transform: mirrored ? "scaleX(-1)" : "scaleX(1)" }} />
               {cameraOff && (
                 <div className="absolute inset-0 bg-softdark flex items-center justify-center">
