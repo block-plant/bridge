@@ -9,8 +9,6 @@ import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const [mirrored, setMirrored] = useState(true); // mirror by default
-
 const ICE_SERVERS = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
@@ -65,6 +63,7 @@ const formatDuration = (s) => {
 export default function VideoCall() {
   const { user, userData, coupleData } = useAuth();
   const [callStatus, setCallStatus] = useState("idle");
+  const [mirrored, setMirrored] = useState(true); // mirror by default
   const [partner, setPartner] = useState(null);
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
