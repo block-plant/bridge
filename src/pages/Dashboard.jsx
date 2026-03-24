@@ -168,8 +168,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [partner, setPartner] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [coupleInfo, setCoupleInfo] = useState(coupleData);
 
+  // ✅ Use coupleData directly from context — it's already a live onSnapshot
+  // No need for a separate coupleInfo state
   const myCity = userData?.city || "";
   const myTimezone = userData?.timezone || "Asia/Kolkata";
   const partnerCity = partner?.city || "";
@@ -178,23 +179,24 @@ export default function Dashboard() {
   const { weather: myWeather, loading: myWeatherLoading } = useWeather(myCity);
   const { weather: partnerWeather, loading: partnerWeatherLoading } = useWeather(partnerCity);
 
+  // ✅ Key fix: depend on coupleData?.members so this re-runs when partner joins
   useEffect(() => {
-    if (!coupleData?.members || coupleData.members.length < 2) return;
+    if (!coupleData?.members) return;
+
     const partnerUid = coupleData.members.find((id) => id !== user.uid);
-    if (!partnerUid) return;
+    if (!partnerUid) {
+      setPartner(null);
+      return;
+    }
+
+    // Live listen to partner's user doc
     const unsub = onSnapshot(doc(db, "users", partnerUid), (snap) => {
       if (snap.exists()) setPartner({ id: snap.id, ...snap.data() });
+      else setPartner(null);
     });
-    return () => unsub();
-  }, [coupleData, user]);
 
-  useEffect(() => {
-    if (!coupleData?.id) return;
-    const unsub = onSnapshot(doc(db, "couples", coupleData.id), (snap) => {
-      if (snap.exists()) setCoupleInfo({ id: snap.id, ...snap.data() });
-    });
     return () => unsub();
-  }, [coupleData]);
+  }, [coupleData?.members, user.uid]); // ✅ re-runs when members array changes
 
   const handleMoodChange = async (mood) => {
     await updateDoc(doc(db, "users", user.uid), { mood });
@@ -204,7 +206,6 @@ export default function Dashboard() {
     await updateDoc(doc(db, "couples", coupleData.id), { nextMeetup: date });
   };
 
-  // ✅ Fixed - no more window.location.reload()
   const handleSettingsSave = async ({ myCity, myTimezone, anniversary }) => {
     await updateDoc(doc(db, "users", user.uid), { city: myCity, timezone: myTimezone });
     if (anniversary) {
@@ -213,7 +214,8 @@ export default function Dashboard() {
     setShowSettings(false);
   };
 
-  const daysTogether = getDaysTogether(coupleInfo?.anniversaryDate);
+  // ✅ Use coupleData directly from context (already live)
+  const daysTogether = getDaysTogether(coupleData?.anniversaryDate);
 
   const NAV_ITEMS = [
     { icon: "💬", label: "Messages",   path: "/messages" },
@@ -233,7 +235,13 @@ export default function Dashboard() {
           className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
           <div>
             <h1 className="font-serif text-2xl md:text-3xl text-softdark leading-tight">
-              {userData?.displayName} <span className="text-rose">♥</span> {partner?.displayName || "..."}
+              {userData?.displayName} <span className="text-rose">♥</span>{" "}
+              {partner?.displayName
+                ? <span>{partner.displayName}</span>
+                : coupleData?.partnerJoined
+                  ? <span className="text-softdark/30 text-xl">loading...</span>
+                  : <span className="text-softdark/30 text-xl">waiting...</span>
+              }
             </h1>
             {daysTogether !== null && (
               <p className="text-sm text-softdark/50 mt-0.5">{daysTogether} days together 🌸</p>
@@ -251,7 +259,7 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        {/* Partner not joined */}
+        {/* Partner not joined banner */}
         {!coupleData?.partnerJoined && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="bg-rose/10 border border-rose/20 rounded-3xl p-5 mb-6 text-center">
@@ -261,6 +269,16 @@ export default function Dashboard() {
               className="text-xs text-plum/40 hover:text-plum mt-2 transition-colors">
               📋 Copy invite code
             </button>
+          </motion.div>
+        )}
+
+        {/* Partner joined banner — shows once when partner joins */}
+        {coupleData?.partnerJoined && partner && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-green-50 border border-green-200 rounded-3xl p-4 mb-6 text-center">
+            <p className="text-sm text-green-600 font-medium">
+              ♥ You and {partner.displayName} are connected!
+            </p>
           </motion.div>
         )}
 
@@ -276,7 +294,7 @@ export default function Dashboard() {
 
           {/* Countdown */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <CountdownWidget meetupDate={coupleInfo?.nextMeetup} onSet={handleMeetupSet} />
+            <CountdownWidget meetupDate={coupleData?.nextMeetup} onSet={handleMeetupSet} />
           </motion.div>
 
           {/* Moods */}
