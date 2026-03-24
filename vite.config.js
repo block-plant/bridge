@@ -38,14 +38,13 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Cache all static assets
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        // Don't cache Firebase / external API calls
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/firestore/],
         runtimeCaching: [
           {
-            // Cache Google Fonts
             urlPattern: /^https:\/\/fonts\.googleapis\.com/,
             handler: 'StaleWhileRevalidate',
             options: {
@@ -59,19 +58,18 @@ export default defineConfig({
               cacheName: 'google-fonts-webfonts',
               expiration: {
                 maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
             },
           },
           {
-            // Cache Open-Meteo weather API (short-lived)
             urlPattern: /^https:\/\/api\.open-meteo\.com/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'weather-api',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 30, // 30 minutes
+                maxAgeSeconds: 60 * 30,
               },
             },
           },

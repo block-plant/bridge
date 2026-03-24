@@ -4,6 +4,8 @@ import "./styles/globals.css";
 import App from "./App.jsx";
 import ErrorBoundary from "./components/shared/ErrorBoundary.jsx";
 import OfflineDetector from "./components/shared/OfflineDetector.jsx";
+import { registerSW } from 'virtual:pwa-register'
+registerSW({ onNeedRefresh() { window.location.reload() } })
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
