@@ -12,37 +12,48 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  let unsubUser = null;
+    let unsubUser = null;
 
-  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-    if (firebaseUser) {
-      setUser(firebaseUser);
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        const uData = userDoc.data();
-        setUserData(uData);
-        const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
-        if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
-
-        // ✅ store reference so we can clean it up
-        unsubUser = onSnapshot(userRef, (snap) => {
-          if (snap.exists()) setUserData(snap.data());
-        });
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // ✅ Block unverified users — treat them as logged out
+      if (firebaseUser && !firebaseUser.emailVerified) {
+        setUser(null);
+        setUserData(null);
+        setCoupleData(null);
+        setLoading(false);
+        return;
       }
-    } else {
-      setUser(null);
-      setUserData(null);
-      setCoupleData(null);
-    }
-    setLoading(false);
-  });
 
-  return () => {
-    unsubscribe();
-    if (unsubUser) unsubUser(); 
-  };
-}, []);
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const uData = userDoc.data();
+          setUserData(uData);
+
+          const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
+          if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
+
+          unsubUser = onSnapshot(userRef, (snap) => {
+            if (snap.exists()) setUserData(snap.data());
+          });
+        }
+      } else {
+        setUser(null);
+        setUserData(null);
+        setCoupleData(null);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+      if (unsubUser) unsubUser();
+    };
+  }, []);
 
   const value = useMemo(() => ({
     user, userData, coupleData, loading, setCoupleData

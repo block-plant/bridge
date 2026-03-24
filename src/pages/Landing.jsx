@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { signUpAndCreateRoom, signUpAndJoinRoom, signIn } from "../firebase/auth";
+import { signUpAndCreateRoom, signUpAndJoinRoom, signIn, resendVerificationEmail } from "../firebase/auth";
 
 const FloatingHeart = ({ delay = 0, x = 50, size = 20 }) => (
   <motion.div
@@ -48,8 +48,8 @@ const InviteCard = ({ code, onContinue }) => (
   <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center space-y-6">
     <div className="text-5xl">💌</div>
     <div>
-      <h2 className="font-serif text-2xl text-softdark mb-1">Your room is ready!</h2>
-      <p className="text-sm text-softdark/50">Share this code with your partner</p>
+      <h2 className="font-serif text-2xl text-softdark">Your room is ready!</h2>
+      <p className="text-sm text-softdark/50 mt-1">Share this code with your partner</p>
     </div>
     <div className="bg-gradient-to-r from-blush/60 to-rose/20 rounded-3xl p-6 border border-rose/30">
       <p className="text-xs uppercase tracking-widest text-plum/50 mb-3">Invite Code</p>
@@ -72,12 +72,66 @@ const InviteCard = ({ code, onContinue }) => (
   </motion.div>
 );
 
+// ── Email Verification Screen ─────────────────────────────────────────────────
+const VerifyEmail = ({ email, password, onBack }) => {
+  const [resent, setResent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleResend = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await resendVerificationEmail(email, password);
+      setResent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-6">
+      <div className="text-5xl">📬</div>
+      <div>
+        <h2 className="font-serif text-2xl text-softdark">Check your inbox</h2>
+        <p className="text-sm text-softdark/50 mt-2 leading-relaxed">
+          We sent a verification link to<br />
+          <span className="font-medium text-plum">{email}</span>
+        </p>
+      </div>
+
+      <div className="bg-rose/10 rounded-3xl p-5 border border-rose/20 text-left space-y-2">
+        <p className="text-xs text-softdark/60 font-medium">What to do:</p>
+        <p className="text-xs text-softdark/50">1. Open the email from Firebase / LoveBridge</p>
+        <p className="text-xs text-softdark/50">2. Click the verification link</p>
+        <p className="text-xs text-softdark/50">3. Come back here and sign in</p>
+      </div>
+
+      {error && <p className="text-red-500 text-xs bg-red-50 rounded-2xl py-2 px-4">{error}</p>}
+      {resent && <p className="text-green-600 text-xs bg-green-50 rounded-2xl py-2 px-4">✓ Verification email resent!</p>}
+
+      <div className="space-y-3">
+        <Btn onClick={onBack}>← Back to Sign In</Btn>
+        <Btn variant="secondary" onClick={handleResend} loading={loading}>
+          Resend verification email
+        </Btn>
+      </div>
+
+      <p className="text-xs text-softdark/30">Check your spam folder if you don't see it</p>
+    </motion.div>
+  );
+};
+
 export default function Landing() {
   const navigate = useNavigate();
   const [view, setView] = useState("hero");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [pendingPassword, setPendingPassword] = useState("");
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", code: "" });
 
   const f = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
@@ -89,13 +143,26 @@ export default function Landing() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) return setError("Please enter a valid email address.");
     setLoading(true);
-    try { await signIn(form.email, form.password); navigate("/dashboard"); }
-    catch (err) { setError(err.message.includes("invalid-credential") ? "Incorrect email or password." : err.message); }
-    finally { setLoading(false); }
+    try {
+      await signIn(form.email, form.password);
+      navigate("/dashboard");
+    } catch (err) {
+      if (err.message.includes("verify your email")) {
+        // Show verify screen with credentials so they can resend
+        setPendingEmail(form.email);
+        setPendingPassword(form.password);
+        setView("verify");
+      } else {
+        setError(err.message.includes("invalid-credential") ? "Incorrect email or password." : err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreate = async () => {
     clear();
+    if (!form.name) return setError("Please enter your name.");
     if (!form.email || !form.password) return setError("Please fill in all fields.");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) return setError("Please enter a valid email address.");
@@ -104,27 +171,61 @@ export default function Landing() {
     setLoading(true);
     try {
       const { inviteCode: code } = await signUpAndCreateRoom(form.email, form.password, form.name);
-      setInviteCode(code); setView("success");
+      setInviteCode(code);
+      setPendingEmail(form.email);
+      setPendingPassword(form.password);
+      setView("success");
+    } catch (err) {
+      setError(err.message.includes("email-already-in-use") ? "Email already registered." : err.message);
+    } finally {
+      setLoading(false);
     }
-    catch (err) { setError(err.message.includes("email-already-in-use") ? "Email already registered." : err.message); }
-    finally { setLoading(false); }
   };
 
   const handleJoin = async () => {
     clear();
+    if (!form.name) return setError("Please enter your name.");
     if (!form.email || !form.password) return setError("Please fill in all fields.");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) return setError("Please enter a valid email address.");
     if (form.password !== form.confirmPassword) return setError("Passwords don't match.");
+    if (form.password.length < 6) return setError("Password must be at least 6 characters.");
+    if (!form.code) return setError("Please enter the invite code.");
     setLoading(true);
-    try { await signUpAndJoinRoom(form.email, form.password, form.name, form.code); navigate("/dashboard"); }
-    catch (err) { setError(err.message); }
-    finally { setLoading(false); }
+    try {
+      await signUpAndJoinRoom(form.email, form.password, form.name, form.code);
+      setPendingEmail(form.email);
+      setPendingPassword(form.password);
+      setView("verify");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const views = {
-    success: <InviteCard code={inviteCode} onContinue={() => navigate("/dashboard")} />,
+    // ── Verify email screen ──────────────────────────────────────────────────
+    verify: (
+      <VerifyEmail
+        email={pendingEmail}
+        password={pendingPassword}
+        onBack={() => { setView("login"); clear(); }}
+      />
+    ),
 
+    // ── Invite code screen ───────────────────────────────────────────────────
+    success: (
+      <motion.div key="success" className="space-y-4">
+        <InviteCard code={inviteCode} onContinue={() => {
+          setPendingEmail(form.email);
+          setPendingPassword(form.password);
+          setView("verify");
+        }} />
+      </motion.div>
+    ),
+
+    // ── Login ────────────────────────────────────────────────────────────────
     login: (
       <motion.div key="login" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
         <div className="text-center mb-6">
@@ -139,6 +240,7 @@ export default function Landing() {
       </motion.div>
     ),
 
+    // ── Sign up ──────────────────────────────────────────────────────────────
     signup: (
       <motion.div key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
         <div className="text-center mb-6">
@@ -158,6 +260,7 @@ export default function Landing() {
       </motion.div>
     ),
 
+    // ── Join ─────────────────────────────────────────────────────────────────
     join: (
       <motion.div key="join" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
         <div className="text-center mb-6">
@@ -176,6 +279,7 @@ export default function Landing() {
       </motion.div>
     ),
 
+    // ── Hero ─────────────────────────────────────────────────────────────────
     hero: (
       <motion.div key="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center space-y-8">
         <div className="space-y-3">

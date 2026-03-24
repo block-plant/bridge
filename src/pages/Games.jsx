@@ -46,30 +46,50 @@ const generateQuestion = async (gameId, level, partnerName, myName) => {
     finish: `Generate a "Finish the Sentence" prompt for a couple named ${myName} and ${partnerName}. Level: ${level} mood. Return ONLY valid JSON: {"prompt": "Incomplete sentence ending with ..."}. ${level === "Funny" ? "Make it humorous and playful." : level === "Deep" ? "Make it emotional and meaningful." : "Make it sweet and romantic."}`,
   };
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 300,
-      messages: [{ role: "user", content: prompts[gameId] }],
-    }),
-  });
+  const isDev = import.meta.env.DEV;
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || `API error ${res.status}`);
+  if (isDev) {
+    // Local development — call Anthropic directly
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 300,
+        messages: [{ role: "user", content: prompts[gameId] }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const clean = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(clean);
+
+  } else {
+    // Production — call via secure Vercel proxy
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameId, level, prompt: prompts[gameId] }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || `API error ${res.status}`);
+    }
+
+    return await res.json();
   }
-
-  const data = await res.json();
-  const text = data.content?.[0]?.text?.trim() || "";
-  const clean = text.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
 };
 
 // ── Game Components ───────────────────────────────────────────────────────────
