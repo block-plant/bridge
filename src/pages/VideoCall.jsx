@@ -32,7 +32,6 @@ const ICE_SERVERS = {
   ],
 };
 
-
 const FILTERS = [
   { id: "none",      label: "Normal",    css: "none" },
   { id: "warm",      label: "Warm 🌅",   css: "saturate(150%) sepia(20%) brightness(1.1)" },
@@ -88,6 +87,7 @@ export default function VideoCall() {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const screenVideoRef = useRef(null);
+const remoteStreamRef = useRef(null);
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
   const screenStreamRef = useRef(null);
@@ -161,6 +161,19 @@ export default function VideoCall() {
     }
   }, [selectedFilter]);
 
+  useEffect(() => {
+    if ((callStatus === "connected" || callStatus === "connecting") && remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current;
+    }
+  }, [callStatus]);
+
+  // Local stream effect
+  useEffect(() => {
+    if ((callStatus === "connected" || callStatus === "connecting") && localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+    }
+  }, [callStatus]);
+
   // Cleanup
   const cleanup = useCallback(async () => {
     clearInterval(callTimerRef.current);
@@ -215,6 +228,7 @@ export default function VideoCall() {
     pcRef.current = pc;
     stream.getTracks().forEach(track => pc.addTrack(track, stream));
     pc.ontrack = (e) => {
+      remoteStreamRef.current = e.streams[0];
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
     };
     pc.onconnectionstatechange = () => {
@@ -530,7 +544,7 @@ export default function VideoCall() {
           {/* Main video — remote */}
           <div className="flex-1 relative bg-black">
             <video ref={remoteVideoRef} autoPlay playsInline
-              className="w-full h-full object-cover" />
+              className="w-full h-full object-contain" />
 
             {/* Screen share overlay */}
             {screenSharing && (
@@ -553,7 +567,7 @@ export default function VideoCall() {
             <div className={`absolute transition-all duration-300 ${pip ? "bottom-20 left-4 w-48 h-36" : "bottom-20 right-4 w-32 h-24"} rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer`}
               onClick={() => setPip(p => !p)}>
               <video ref={localVideoRef} autoPlay playsInline muted
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 style={{ transform: mirrored ? "scaleX(-1)" : "scaleX(1)" }} />
               {cameraOff && (
                 <div className="absolute inset-0 bg-softdark flex items-center justify-center">
