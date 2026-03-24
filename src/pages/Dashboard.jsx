@@ -204,12 +204,13 @@ export default function Dashboard() {
     await updateDoc(doc(db, "couples", coupleData.id), { nextMeetup: date });
   };
 
+  // ✅ Fixed - no more window.location.reload()
   const handleSettingsSave = async ({ myCity, myTimezone, anniversary }) => {
     await updateDoc(doc(db, "users", user.uid), { city: myCity, timezone: myTimezone });
     if (anniversary) {
       await updateDoc(doc(db, "couples", coupleData.id), { anniversaryDate: new Date(anniversary) });
     }
-    window.location.reload();
+    setShowSettings(false);
   };
 
   const daysTogether = getDaysTogether(coupleInfo?.anniversaryDate);

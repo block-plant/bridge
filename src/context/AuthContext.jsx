@@ -12,48 +12,45 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubUser = null;
+  let unsubUser = null;
+  let unsubCouple = null;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      // ✅ Block unverified users — treat them as logged out
-      if (firebaseUser && !firebaseUser.emailVerified) {
-        setUser(null);
-        setUserData(null);
-        setCoupleData(null);
-        setLoading(false);
-        return;
-      }
+  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    if (firebaseUser) {
+      setUser(firebaseUser);
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userDoc = await getDoc(userRef);
 
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const uData = userDoc.data();
+        setUserData(uData);
 
-        if (userDoc.exists()) {
-          const uData = userDoc.data();
-          setUserData(uData);
-
-          const coupleDoc = await getDoc(doc(db, "couples", uData.coupleId));
-          if (coupleDoc.exists()) setCoupleData({ id: coupleDoc.id, ...coupleDoc.data() });
-
-          unsubUser = onSnapshot(userRef, (snap) => {
-            if (snap.exists()) setUserData(snap.data());
+        // ✅ Live listen to couple doc so partnerJoined updates in real time
+        if (uData.coupleId) {
+          unsubCouple = onSnapshot(doc(db, "couples", uData.coupleId), (snap) => {
+            if (snap.exists()) setCoupleData({ id: snap.id, ...snap.data() });
           });
         }
-      } else {
-        setUser(null);
-        setUserData(null);
-        setCoupleData(null);
+
+        // ✅ Live listen to user doc
+        unsubUser = onSnapshot(userRef, (snap) => {
+          if (snap.exists()) setUserData(snap.data());
+        });
       }
+    } else {
+      setUser(null);
+      setUserData(null);
+      setCoupleData(null);
+    }
+    setLoading(false);
+  });
 
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribe();
-      if (unsubUser) unsubUser();
-    };
-  }, []);
+  return () => {
+    unsubscribe();
+    if (unsubUser) unsubUser();
+    if (unsubCouple) unsubCouple();
+  };
+}, []);
 
   const value = useMemo(() => ({
     user, userData, coupleData, loading, setCoupleData
