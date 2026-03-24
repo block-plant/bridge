@@ -9,13 +9,31 @@ import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
+const [mirrored, setMirrored] = useState(true); // mirror by default
+
 const ICE_SERVERS = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:19302" },
+    // Free TURN servers from Open Relay Project
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
   ],
 };
+
 
 const FILTERS = [
   { id: "none",      label: "Normal",    css: "none" },
@@ -536,12 +554,19 @@ export default function VideoCall() {
             <div className={`absolute transition-all duration-300 ${pip ? "bottom-20 left-4 w-48 h-36" : "bottom-20 right-4 w-32 h-24"} rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer`}
               onClick={() => setPip(p => !p)}>
               <video ref={localVideoRef} autoPlay playsInline muted
-                className="w-full h-full object-cover" />
+                className="w-full h-full object-cover"
+                style={{ transform: mirrored ? "scaleX(-1)" : "scaleX(1)" }} />
               {cameraOff && (
                 <div className="absolute inset-0 bg-softdark flex items-center justify-center">
                   <p className="text-white/50 text-xs">Camera off</p>
                 </div>
               )}
+              {/* Mirror toggle button */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setMirrored(m => !m); }}
+                className="absolute top-1 left-1 bg-black/40 rounded-full w-6 h-6 flex items-center justify-center text-xs text-white/70 hover:text-white transition-colors">
+                ↔
+              </button>
             </div>
 
             {/* Duration */}
