@@ -562,7 +562,7 @@ export default function Games() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                   <button onClick={nextQuestion} disabled={loading}
                     className="w-full py-3 rounded-2xl bg-gradient-to-r from-plum to-plum-light text-white text-sm font-medium shadow-plum hover:-translate-y-0.5 transition-all disabled:opacity-40">
-                    {loading ? "Claude is thinking..." : "Next Question ↻"}
+                    {loading ? "LoveBridge is thinking..." : "Next Question ↻"}
                   </button>
                 </motion.div>
               )}
