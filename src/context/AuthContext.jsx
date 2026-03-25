@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   let unsubCouple = null;
 
   const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-    if (firebaseUser) {
+    if (firebaseUser && firebaseUser.emailVerified) {
       setUser(firebaseUser);
       const userRef = doc(db, "users", firebaseUser.uid);
       const userDoc = await getDoc(userRef);
