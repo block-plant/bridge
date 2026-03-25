@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import FloatingCall from "./components/shared/FloatingCall";
 
 // ── Lazy load all pages ───────────────────────────────────────────────────────
 const Landing    = lazy(() => import("./pages/Landing"));
@@ -12,7 +11,6 @@ const Calendar   = lazy(() => import("./pages/Calendar"));
 const MusicRoom  = lazy(() => import("./pages/MusicRoom"));
 const Games      = lazy(() => import("./pages/Games"));
 const Finance    = lazy(() => import("./pages/Finance"));
-const VideoCall  = lazy(() => import("./pages/VideoCall"));
 
 // ── Page loading skeleton ─────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -53,7 +51,6 @@ function AppRoutes() {
           <Route path="/music"     element={<ProtectedRoute><MusicRoom /></ProtectedRoute>} />
           <Route path="/games"     element={<ProtectedRoute><Games /></ProtectedRoute>} />
           <Route path="/finance"   element={<ProtectedRoute><Finance /></ProtectedRoute>} />
-          <Route path="/video"     element={<ProtectedRoute><VideoCall /></ProtectedRoute>} />
           <Route path="*"          element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
