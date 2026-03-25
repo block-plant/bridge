@@ -40,14 +40,45 @@ const generateQuestion = async (gameId, level, partnerName, myName) => {
   const uniqueInstruction = ` CRITICAL: Be highly creative. Ensure this specific output is completely unique, rare, and unexpected. Do not use common examples or clichés. (Random uniqueness seed: ${randomSeed})`;
 
   const prompts = {
-    wyr: `Generate a single "Would You Rather" question for a couple named ${myName} and ${partnerName}. Level: ${level}. Return ONLY valid JSON: {"a": "option A", "b": "option B"}. ${level === "Extreme" ? "Make it deeply thought-provoking about life, love and sacrifice." : level === "Spicy" ? "Make it edgy, relationship-focused and a little uncomfortable." : "Keep it fun and light-hearted for couples."}${uniqueInstruction}`,
-    tod: `Generate a single Truth OR Dare for a couple named ${myName} and ${partnerName}. Level: ${level}. Return ONLY valid JSON: {"type": "truth", "content": "question"} or {"type": "dare", "content": "dare"}. ${level === "Daring" ? "Make it bold, vulnerable and deeply personal." : level === "Bold" ? "Make it honest and slightly challenging." : "Keep it sweet and romantic."}${uniqueInstruction}`,
-    hwyknm: `Generate a "How Well Do You Know Me" question for a couple. Level: ${level}. Return ONLY valid JSON: {"question": "the question"}. ${level === "Hard" ? "Make it deep, personal and revealing." : level === "Medium" ? "Make it thoughtful and meaningful." : "Make it simple and fun."}${uniqueInstruction}`,
-    emoji: `Generate an emoji puzzle for a couple. Level: ${level}. Return ONLY valid JSON: {"emoji": "emoji sequence", "answer": "answer", "hint": "short hint"}. Answer should be a romantic word, phrase or movie. ${level === "Hard" ? "Use 5+ emojis, make it very challenging." : level === "Medium" ? "Use 3-4 emojis." : "Use 2-3 simple emojis."}${uniqueInstruction}`,
-    scramble: `Generate a word scramble for a couple. Level: ${level}. Return ONLY valid JSON: {"scrambled": "SCRAMBLED", "answer": "ANSWER", "hint": "short hint"}. Use a romantic or relationship word. Scrambled must be different from answer. ${level === "Hard" ? "Use 8+ letters." : level === "Medium" ? "Use 5-7 letters." : "Use 4-5 letters."}${uniqueInstruction}`,
-    story: `Generate a story starter for a couple's story building game. Level: ${level} mood. Return ONLY valid JSON: {"starter": "opening sentence"}. ${level === "Wild" ? "Make it adventurous and surprising." : level === "Dramatic" ? "Make it emotional and deep." : "Make it sweet and romantic."}${uniqueInstruction}`,
-    trivia: `Generate a trivia question about love, relationships, famous couples or romantic movies. Level: ${level}. Return ONLY valid JSON: {"question": "q", "answer": "correct answer", "options": ["opt1", "opt2", "opt3", "opt4"]}. Correct answer must be one of the options. ${level === "Hard" ? "Make it very challenging." : level === "Medium" ? "Moderately difficult." : "Easy and fun."}${uniqueInstruction}`,
-    finish: `Generate a "Finish the Sentence" prompt for a couple named ${myName} and ${partnerName}. Level: ${level} mood. Return ONLY valid JSON: {"prompt": "Incomplete sentence ending with ..."}. ${level === "Funny" ? "Make it humorous and playful." : level === "Deep" ? "Make it emotional and meaningful." : "Make it sweet and romantic."}${uniqueInstruction}`,
+    wyr: `Generate a single "Would You Rather" question for a couple named ${myName} and ${partnerName}. Level: ${level}. Return ONLY valid JSON: {"a": "option A", "b": "option B"}. ${
+      level === "Extreme" ? "Make it a painfully difficult, high-stakes moral or relationship dilemma. Deeply thought-provoking." 
+      : level === "Spicy" ? "Make it hot, intimate, slightly naughty, and focused on physical romance or bedroom secrets." 
+      : "Make it a sweet, funny, and light-hearted everyday couple scenario."}${uniqueInstruction}`,
+      
+    tod: `Generate a single Truth OR Dare for a couple named ${myName} and ${partnerName}. Level: ${level}. Return ONLY valid JSON: {"type": "truth", "content": "question"} or {"type": "dare", "content": "dare"}. ${
+      level === "Daring" ? "Make the dare wild, physical, and hot, or the truth deeply revealing and intimate." 
+      : level === "Bold" ? "Make it a fun challenge or a slightly uncomfortable but exciting truth." 
+      : "Make it a cute, romantic gesture or a sweet, innocent truth about your feelings."}${uniqueInstruction}`,
+      
+    hwyknm: `Generate a "How Well Do You Know Me" question for a couple. Level: ${level}. Return ONLY valid JSON: {"question": "the question"}. ${
+      level === "Hard" ? "Make it about a highly specific, obscure detail, a deep-seated fear, or a long-forgotten childhood memory." 
+      : level === "Medium" ? "Make it about daily habits, specific preferences, or opinions on common topics." 
+      : "Make it about absolute favorite things (food, color, movie) that any partner should easily know."}${uniqueInstruction}`,
+      
+    emoji: `Generate an emoji puzzle for a couple. Level: ${level}. Return ONLY valid JSON: {"emoji": "emoji sequence", "answer": "answer", "hint": "short hint"}. Answer should be a romantic word, phrase or movie. ${
+      level === "Hard" ? "Use 6-8 obscure emojis representing a complex movie plot, idiom, or abstract concept. Extremely difficult." 
+      : level === "Medium" ? "Use 3-5 emojis representing a well-known romantic movie, song, or activity." 
+      : "Use 2-3 very obvious emojis representing a common romantic object, animal, or simple word."}${uniqueInstruction}`,
+      
+    scramble: `Generate a word scramble for a couple. Level: ${level}. Return ONLY valid JSON: {"scrambled": "SCRAMBLED", "answer": "ANSWER", "hint": "short hint"}. Use a romantic or relationship word. Scrambled must be different from answer. ${
+      level === "Hard" ? "Use a 9-12 letter complex relationship or emotion word." 
+      : level === "Medium" ? "Use a 6-8 letter word related to dates, feelings, or romance." 
+      : "Use a 4-5 letter simple word like 'LOVE', 'KISS', 'HUG', or 'DATE'."}${uniqueInstruction}`,
+      
+    story: `Generate a story starter for a couple's story building game. Level: ${level} mood. Return ONLY valid JSON: {"starter": "opening sentence"}. ${
+      level === "Wild" ? "Make the opening sentence hot, passionate, scandalous, and intensely romantic with a wild twist." 
+      : level === "Dramatic" ? "Make the opening sentence highly emotional, full of suspense, tension, or a dramatic romantic revelation." 
+      : "Make the opening sentence goofy, hilarious, or starting a ridiculous and fun adventure together."}${uniqueInstruction}`,
+      
+    trivia: `Generate a trivia question about love, relationships, famous couples or romantic movies. Level: ${level}. Return ONLY valid JSON: {"question": "q", "answer": "correct answer", "options": ["opt1", "opt2", "opt3", "opt4"]}. Correct answer must be one of the options. ${
+      level === "Hard" ? "Ask a highly obscure fact about the biology of love, ancient romantic history, or difficult statistics." 
+      : level === "Medium" ? "Ask about a famous celebrity couple, a well-known romantic movie, or common relationship milestones." 
+      : "Ask a very simple, universal question about Valentine's Day, common date ideas, or basic romance."}${uniqueInstruction}`,
+      
+    finish: `Generate a "Finish the Sentence" prompt for a couple named ${myName} and ${partnerName}. Level: ${level} mood. Return ONLY valid JSON: {"prompt": "Incomplete sentence ending with ..."}. ${
+      level === "Funny" ? "Make the prompt set up a hilarious, silly, or slightly embarrassing admission." 
+      : level === "Deep" ? "Make the prompt set up a vulnerable, deeply emotional, or soul-baring confession." 
+      : "Make the prompt set up a cute, affectionate, and heartwarming compliment."}${uniqueInstruction}`,
   };
 
   const isDev = import.meta.env.DEV;
