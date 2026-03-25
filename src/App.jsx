@@ -40,7 +40,6 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <>
-      {user && <FloatingCall />}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/"          element={<PublicRoute><Landing /></PublicRoute>} />
