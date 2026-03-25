@@ -221,7 +221,6 @@ export default function Dashboard() {
     { icon: "💬", label: "Messages",   path: "/messages" },
     { icon: "📸", label: "Scrapbook",  path: "/scrapbook" },
     { icon: "🎵", label: "Music Room", path: "/music" },
-    { icon: "📹", label: "Video Call", path: "/video" },
     { icon: "🎮", label: "Games",      path: "/games" },
     { icon: "📅", label: "Calendar",   path: "/calendar" },
     { icon: "💸", label: "Finance",    path: "/finance" },
