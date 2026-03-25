@@ -72,8 +72,15 @@ const generateQuestion = async (gameId, level, partnerName, myName) => {
 
     const data = await res.json();
     const text = data.content?.[0]?.text?.trim() || "";
-    const clean = text.replace(/```json|```/g, "").trim();
-    return JSON.parse(clean);
+    
+    // THIS IS THE FIX: Extract ONLY the JSON object/array, ignoring Claude's conversational text
+    const jsonMatch = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    
+    if (!jsonMatch) {
+      throw new Error("Claude didn't return any valid JSON format. Try again!");
+    }
+    
+    return JSON.parse(jsonMatch[0]);
 
   } else {
     // Production — call via secure Vercel proxy
