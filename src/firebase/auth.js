@@ -28,6 +28,8 @@ export const signUpAndCreateRoom = async (email, password, displayName) => {
     createdAt: new Date(), mood: "😊", city: "",
   });
 
+  await signOut(auth);
+
   return { user: cred.user, coupleId, inviteCode };
 };
 
@@ -64,6 +66,8 @@ export const signUpAndJoinRoom = async (email, password, displayName, inviteCode
     displayName, email, coupleId, role: "partner",
     createdAt: new Date(), mood: "😊", city: "",
   });
+
+  await signOut(auth);
 
   return { user: cred.user, coupleId };
 };

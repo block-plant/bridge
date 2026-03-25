@@ -291,7 +291,7 @@ export default function Landing() {
           A shared space for the two of you — music, memories, messages, and more.
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
-          {["💬 Chat", "🎵 Music", "📹 Video Calls", "📸 Memories", "🎮 Games", "📅 Calendar"].map((feat) => (
+          {["💬 Chat", "🎵 Music", "📸 Memories", "🎮 Games", "📅 Calendar"].map((feat) => (
             <span key={feat} className="text-xs px-3 py-1.5 rounded-full bg-rose/20 text-plum border border-rose/30 font-medium">{feat}</span>
           ))}
         </div>
