@@ -57,3 +57,21 @@ body {
 .page-enter {
   animation: fadeUp 0.25s ease-out forwards;
 }
+
+body {
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none;   
+  user-select: none;          
+  -webkit-tap-highlight-color: transparent; 
+}
+
+input, textarea, select {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
